@@ -1,4 +1,4 @@
-package org.Optree.jenkins.stages
+package org.Opstree.jenkins.stages
 
 class StaticCodeAnalysis {
     static void call(Map params) {
