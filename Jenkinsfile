@@ -11,7 +11,7 @@ pipeline {
         )
         string(
             name: 'GO_TOOL_NAME',
-            defaultValue: 'Go',
+            defaultValue: 'Go 1.18',
             description: 'Name of the Go tool as configured in Jenkins'
         )
         string(
@@ -44,7 +44,8 @@ pipeline {
     environment {
         SCANNER_HOME = tool(params.SCANNER_TOOL_NAME) // Define SCANNER_HOME for SonarQube
         DEPENDENCY_CHECK_HOME = tool(params.DEPENDENCY_TOOL_NAME) // Define DEPENDENCY_CHECK_HOME for Dependency-Check
-        GO_VERSION = '1.18' // Define GO_VERSION for Go
+        GO_HOME = tool(name: params.GO_TOOL_NAME, type: 'go') // Define GO_HOME for Go
+        PATH = "${env.GO_HOME}/bin:${env.PATH}" // Add GO_HOME/bin to PATH
     }
 
     stages {
