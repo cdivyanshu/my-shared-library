@@ -1,4 +1,4 @@
-package org.Optree.jenkins.stages
+package org.Opstree.jenkins.stages
 
 class DependencyScanning {
     static void call() {
