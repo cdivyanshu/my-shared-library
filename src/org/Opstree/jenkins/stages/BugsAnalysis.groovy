@@ -1,4 +1,4 @@
-package org.Optree.jenkins.stages
+package org.Opstree.jenkins.stages
 
 class BugsAnalysis {
     static void call() {
