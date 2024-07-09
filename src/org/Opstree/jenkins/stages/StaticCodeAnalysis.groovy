@@ -1,4 +1,4 @@
-package org.yourorganization.jenkins.stages
+package org.Opstree.jenkins.stages
 
 def call(Map params) {
     pipeline {
