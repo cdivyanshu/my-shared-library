@@ -1,11 +1,10 @@
-// vars/yourPipeline.groovy
-def call(Map params) {
-    org.yourorganization.jenkins.stages.CompileCode compileCode = new org.yourorganization.jenkins.stages.CompileCode()
-    org.yourorganization.jenkins.stages.StaticCodeAnalysis staticCodeAnalysis = new org.yourorganization.jenkins.stages.StaticCodeAnalysis()
-    org.yourorganization.jenkins.stages.BugsAnalysis bugsAnalysis = new org.yourorganization.jenkins.stages.BugsAnalysis()
-    org.yourorganization.jenkins.stages.DependencyScanning dependencyScanning = new org.yourorganization.jenkins.stages.DependencyScanning()
-    org.yourorganization.jenkins.stages.Dast dast = new org.yourorganization.jenkins.stages.Dast()
+import org.Optree.jenkins.stages.CompileCode
+import org.Optree.jenkins.stages.StaticCodeAnalysis
+import org.Optree.jenkins.stages.BugsAnalysis
+import org.Optree.jenkins.stages.DependencyScanning
+import org.Optree.jenkins.stages.Dast
 
+def call(Map params) {
     pipeline {
         agent any
 
@@ -22,7 +21,7 @@ def call(Map params) {
             stage('Code Compilation') {
                 steps {
                     script {
-                        compileCode(
+                        CompileCode.call(
                             GIT_BRANCH: params.GIT_BRANCH,
                             GIT_URL: params.GIT_URL
                         )
@@ -33,7 +32,7 @@ def call(Map params) {
             stage('Static Code Analysis') {
                 steps {
                     script {
-                        staticCodeAnalysis(
+                        StaticCodeAnalysis.call(
                             SCANNER_TOOL_NAME: params.SCANNER_TOOL_NAME,
                             SONARQUBE_ENV_NAME: params.SONARQUBE_ENV_NAME
                         )
@@ -44,7 +43,7 @@ def call(Map params) {
             stage('Bugs Analysis') {
                 steps {
                     script {
-                        bugsAnalysis()
+                        BugsAnalysis.call()
                     }
                 }
             }
@@ -52,7 +51,7 @@ def call(Map params) {
             stage('Dependency Scanning') {
                 steps {
                     script {
-                        dependencyScanning()
+                        DependencyScanning.call()
                     }
                 }
             }
@@ -60,7 +59,7 @@ def call(Map params) {
             stage('Dynamic Application Security Testing (DAST)') {
                 steps {
                     script {
-                        dast(
+                        Dast.call(
                             ZAP_PORT: params.ZAP_PORT,
                             ZAP_URL: params.ZAP_URL
                         )
