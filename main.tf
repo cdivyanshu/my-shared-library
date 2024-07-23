@@ -1,4 +1,5 @@
-# Define the AWS provider
+# Frontend
+
 provider "aws" {
   region = "us-west-2"  # Replace with your region
 }
@@ -135,7 +136,7 @@ resource "aws_lb_listener" "front_end" {
 
 # Define the Launch Template
 resource "aws_launch_template" "frontend_launch_template" {
-  name = "frontend-template"
+  name = "frontend-template-v2"  # Changed name to avoid conflict
 
   block_device_mappings {
     device_name = "/dev/sdf"
