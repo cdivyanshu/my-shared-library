@@ -1,3 +1,8 @@
+# Define the AWS provider
+provider "aws" {
+  region = "us-west-2"  # Specify the region here
+}
+
 # Define the VPC
 resource "aws_vpc" "ot_microservices_dev" {
   cidr_block = "10.0.0.0/16"
