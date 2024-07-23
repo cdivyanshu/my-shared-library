@@ -114,9 +114,9 @@ resource "aws_lb_target_group_attachment" "frontend_target_group_attachment" {
   port             = 3000
 }
 
-# Define the Load Balancer
+# Define the Load Balancer with a new name
 resource "aws_lb" "test" {
-  name               = "frontend-lb"
+  name               = "frontend-lb-v2"  # Changed name to avoid conflict
   internal           = false
   load_balancer_type = "application"
   subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
