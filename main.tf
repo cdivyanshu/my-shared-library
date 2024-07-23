@@ -17,19 +17,19 @@ resource "aws_security_group" "frontend_security_group" {
   tags = {
     Name = "frontend-security-group"
   }
-  
+
   ingress {
     from_port        = 3000
     to_port          = 3000
     protocol         = "tcp"
-    security_groups  = [aws_security_group.alb_security_group.id]
+    cidr_blocks      = ["0.0.0.0/0"]
   }
 
   ingress {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    security_groups  = [aws_security_group.bastion_security_group.id]
+    cidr_blocks      = ["0.0.0.0/0"]
   }
 
   egress {
@@ -104,7 +104,6 @@ resource "aws_lb" "test" {
   name               = "frontend-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_security_group.id]
   subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
 }
 
