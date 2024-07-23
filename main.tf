@@ -1,4 +1,60 @@
-# FRONTEND
+# Define VPC
+resource "aws_vpc" "ot_microservices_dev" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "ot_microservices_dev"
+  }
+}
+
+# Define Security Groups
+resource "aws_security_group" "alb_security_group" {
+  vpc_id = aws_vpc.ot_microservices_dev.id
+  name = "alb-security-group"
+
+  tags = {
+    Name = "alb-security-group"
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "bastion_security_group" {
+  vpc_id = aws_vpc.ot_microservices_dev.id
+  name = "bastion-security-group"
+
+  tags = {
+    Name = "bastion-security-group"
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 resource "aws_security_group" "frontend_security_group" {
   vpc_id = aws_vpc.ot_microservices_dev.id
@@ -7,48 +63,61 @@ resource "aws_security_group" "frontend_security_group" {
   tags = {
     Name = "frontend-security-group"
   }
-  
+
   ingress {
-    from_port        = 3000
-    to_port          = 3000
-    protocol         = "tcp"
+    from_port = 3000
+    to_port = 3000
+    protocol = "tcp"
     security_groups = [aws_security_group.alb_security_group.id]
   }
 
   ingress {
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
     security_groups = [aws_security_group.bastion_security_group.id]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    # ipv6_cidr_blocks = ["::/0"]
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-
-# frontend instance
-
-resource "aws_instance" "frontend_instance" {
-  # ami to be replaced
-  ami           = "ami-05eb8291d90fc00c8"
-  subnet_id = aws_subnet.frontend_subnet.id
-  key_name = "devinfra"
-  vpc_security_group_ids = [ aws_security_group.frontend_security_group.id ]
-  instance_type = "t2.micro"
+# Define Subnets
+resource "aws_subnet" "frontend_subnet" {
+  vpc_id                  = aws_vpc.ot_microservices_dev.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
 
   tags = {
-    Name = "Frontend"
+    Name = "frontend-subnet"
   }
 }
 
-# target group and attachment
+resource "aws_subnet" "public_subnet_1" {
+  vpc_id                  = aws_vpc.ot_microservices_dev.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "us-east-1b"
 
+  tags = {
+    Name = "public-subnet-1"
+  }
+}
+
+resource "aws_subnet" "public_subnet_2" {
+  vpc_id                  = aws_vpc.ot_microservices_dev.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "us-east-1c"
+
+  tags = {
+    Name = "public-subnet-2"
+  }
+}
+
+# Define Load Balancer Target Group and Attachment
 resource "aws_lb_target_group" "frotend_target_group" {
   name     = "tf-example-lb-tg"
   port     = 80
@@ -63,8 +132,7 @@ resource "aws_lb_target_group_attachment" "frontend_target_group_attachment" {
   port             = 3000
 }
 
-# load balancer
-
+# Define Load Balancer
 resource "aws_lb" "test" {
   name               = "frontend-lb"
   internal           = false
@@ -84,11 +152,7 @@ resource "aws_lb_listener" "front_end" {
   }
 }
 
-
-
-
-# launch template
-
+# Define Launch Template
 resource "aws_launch_template" "frontend_launch_template" {
   name = "frontend-template"
 
@@ -108,7 +172,6 @@ resource "aws_launch_template" "frontend_launch_template" {
   }
 
   key_name      = "devinfra"
-  # ami to be replaced with actual ami currently not right
   image_id      = "ami-05eb8291d90fc00c8"
   instance_type = "t2.micro"
 
@@ -121,13 +184,12 @@ resource "aws_launch_template" "frontend_launch_template" {
   }
 }
 
-# auto scaling
-
+# Define Auto Scaling
 resource "aws_autoscaling_group" "frontend_autoscaling" {
   name                      = "frontend-autoscale"
   max_size                  = 2
   min_size                  = 0
-  desired_capacity = 0
+  desired_capacity          = 0
   health_check_grace_period = 300
   launch_template {
     id      = aws_launch_template.frontend_launch_template.id
@@ -152,4 +214,3 @@ resource "aws_autoscaling_policy" "frontend_autoscaling_policy" {
     target_value = 50.0
   }
 }
-
