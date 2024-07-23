@@ -1,6 +1,6 @@
 # Define the AWS provider
 provider "aws" {
-  region = "us-west-2"  # Specify the region here
+  region = "us-west-2"  # Replace with your region
 }
 
 # Define the VPC
@@ -11,6 +11,15 @@ resource "aws_vpc" "ot_microservices_dev" {
 
   tags = {
     Name = "ot_microservices_dev"
+  }
+}
+
+# Define the Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.ot_microservices_dev.id
+
+  tags = {
+    Name = "main"
   }
 }
 
@@ -78,7 +87,7 @@ resource "aws_subnet" "public_subnet_2" {
 
 # Define the Instances
 resource "aws_instance" "frontend_instance" {
-  ami           = "ami-05eb8291d90fc00c8"
+  ami           = "ami-0a0e5d9c7acc336f1"  # Updated AMI ID
   subnet_id     = aws_subnet.frontend_subnet.id
   key_name       = "devinfra"
   vpc_security_group_ids = [aws_security_group.frontend_security_group.id]
@@ -110,6 +119,7 @@ resource "aws_lb" "test" {
   internal           = false
   load_balancer_type = "application"
   subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+  security_groups    = [aws_security_group.frontend_security_group.id]
 }
 
 resource "aws_lb_listener" "front_end" {
@@ -143,7 +153,7 @@ resource "aws_launch_template" "frontend_launch_template" {
   }
 
   key_name      = "devinfra"
-  image_id      = "ami-05eb8291d90fc00c8"
+  image_id      = "ami-0a0e5d9c7acc336f1"  # Updated AMI ID
   instance_type = "t2.micro"
 
   tag_specifications {
